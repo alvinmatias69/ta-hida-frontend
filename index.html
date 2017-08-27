@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <!--import google material icons-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="materialize/css/materialize.min.css"  media="screen,projection"/>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title>
+      Tugas Akhir Hida
+    </title>
+  </head>
+  <body onload="getData()">
+    <div class="container">
+      <h2 class="center-align">Tugas Akhir</h2>
+
+      <div class="row">
+        <div class="col s1 offset-s3" style="padding-right:0">
+         <i class="material-icons right" style="margin-top:12px;font-size: 37px;color:'red'">search</i>
+       </div>
+       <div class="col s5" style="padding-left:0; padding-right:0">
+         <input id="find" type="text" placeholder="Press enter to search username" onkeypress="find(event)"/>
+       </div>
+      </div>
+
+      <table class="centered highlight striped">
+        <thead>
+          <tr>
+            <th>username</th>
+            <th>calledstationid</th>
+            <th>callingstationid</th>
+            <th>acctstarttime</th>
+          </tr>
+        </thead>
+
+        <tbody id="content">
+          <tr>
+            <td />
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="materialize/js/materialize.min.js"></script>
+
+    <script>
+      getData = () => {
+        emptyTable()
+
+        let xhttp = new XMLHttpRequest()
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            populateTable(JSON.parse(this.responseText))
+          }
+        }
+
+        xhttp.open("GET", "http://localhost:8000/", true)
+        xhttp.send()
+      }
+
+      emptyTable = () => {
+        let content = document.getElementById('content')
+
+        while (content.hasChildNodes()) {
+          content.removeChild(content.lastChild)
+        }
+      }
+
+      populateTable = (contents) => {
+        let tableDOM = document.getElementById('content')
+
+        let records = ''
+        contents.map((content) => {
+          let record = '<tr>'
+          Object.keys(content).forEach(function (key) {
+            record = `${record}<td>${content[key]}</td>`
+          })
+          records = `${records}${record}</tr>`
+        })
+        
+        tableDOM.innerHTML = records
+      }
+
+      find = (e) => {
+        if (e.keyCode === 13) {
+          let xhttp = new XMLHttpRequest()
+          xhttp.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+              emptyTable()
+
+              populateTable(JSON.parse(this.responseText))
+            }
+          }
+
+          xhttp.open("POST", "http://localhost:8000/", true)
+          xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+          xhttp.send(`username=${document.getElementById('find').value}`)
+        }
+      }
+    </script>
+  </body>
+</html>
